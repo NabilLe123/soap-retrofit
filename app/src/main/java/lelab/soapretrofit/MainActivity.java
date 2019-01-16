@@ -9,9 +9,13 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import io.reactivex.Observable;
+import lelab.soapretrofit.api.ApiRequest;
 import lelab.soapretrofit.api.RetrofitGenerator;
+import lelab.soapretrofit.api.ServerCallback;
 import lelab.soapretrofit.model.request.EvaluateCheckList;
 import lelab.soapretrofit.model.request.EvaluateRequest;
 import lelab.soapretrofit.model.request.EvaluateRequestBody;
@@ -54,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    //using rx java
     private void callSurveyAPI() {
         pbMain.setVisibility(View.VISIBLE);
 
@@ -64,37 +69,45 @@ public class MainActivity extends AppCompatActivity {
         requestModel.setLicenseNo("2200294");
         requestBody.surveyRequestModel = requestModel;
         requestEnvelop.surveyRequestBody = requestBody;
-        Call<SurveyResponseEnvelope> call = RetrofitGenerator.getApiInterface().getShopSurvey(requestEnvelop);
-        call.enqueue(new Callback<SurveyResponseEnvelope>() {
+
+        Observable<SurveyResponseEnvelope> observable = RetrofitGenerator.getApiInterface().getShopSurvey(requestEnvelop);
+        ApiRequest apiRequest = new ApiRequest();
+        apiRequest.requestApi(this, Collections.<Observable<?>>singletonList(observable), new ServerCallback() {
             @Override
-            public void onResponse(@NonNull Call<SurveyResponseEnvelope> call, @NonNull Response<SurveyResponseEnvelope> response) {
-
-                Log.d(TAG, "onResponse: call " + call + " code " + response.code()
-                        + " headers " + response.headers()
-                        + " message " + response.message()
-                        + " raw " + response.raw()
-                        + " body " + response.body());
-
-                pbMain.setVisibility(View.GONE);
-                SurveyResponseEnvelope responseEnvelope = response.body();
+            public void onSuccess(Object object) {
+                SurveyResponseEnvelope responseEnvelope = (SurveyResponseEnvelope) object;
                 if (responseEnvelope != null) {
                     Log.d(TAG, "responseEnvelope " + responseEnvelope);
                     Log.d(TAG, "responseEnvelope.surveyResponseBody " + responseEnvelope.surveyResponseBody);
                     Log.d(TAG, "responseEnvelope.surveyResponseBody.surveyResponseModel " + responseEnvelope.surveyResponseBody.surveyResponseModel);
                     Log.d(TAG, "responseEnvelope.surveyResponseBody.surveyResponseModel.surveys " + responseEnvelope.surveyResponseBody.surveyResponseModel.surveys.size());
-
-                    //Log.d(TAG, "getTaskOperationID " + responseEnvelope.surveyResponseBody.surveyResponseModel.surveys.get(0).getTaskOperationID());
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<SurveyResponseEnvelope> call, @NonNull Throwable t) {
-                Log.d(TAG, "onFailure: " + t.getMessage());
+            public void onTokenExpiry() {
+                //Misc.reLogin(context.getString(R.string.session_expired), context);
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+                Log.d(TAG, "onFailure: " + throwable.getMessage());
+                pbMain.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onNetworkError() {
+
+            }
+
+            @Override
+            public void onComplete() {
                 pbMain.setVisibility(View.GONE);
             }
         });
     }
 
+    //using ordinary retrofit calls
     private void callEvaluationAPI() {
         pbMain.setVisibility(View.VISIBLE);
         List<EvaluateRequest> evaluateRequests = new ArrayList<>();
