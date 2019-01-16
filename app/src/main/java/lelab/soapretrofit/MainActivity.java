@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,8 +20,8 @@ import lelab.soapretrofit.model.request.EvaluateRequestModel;
 import lelab.soapretrofit.model.request.SurveyRequestBody;
 import lelab.soapretrofit.model.request.SurveyRequestEnvelope;
 import lelab.soapretrofit.model.request.SurveyRequestModel;
+import lelab.soapretrofit.model.response.EvaluateResponseEnvelope;
 import lelab.soapretrofit.model.response.SurveyResponseEnvelope;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -84,8 +83,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "responseEnvelope.surveyResponseBody.surveyResponseModel " + responseEnvelope.surveyResponseBody.surveyResponseModel);
                     Log.d(TAG, "responseEnvelope.surveyResponseBody.surveyResponseModel.surveys " + responseEnvelope.surveyResponseBody.surveyResponseModel.surveys.size());
 
-                    //List<ShopResponseModel> list = responseEnvelope.body.shopModel.shopResponseMainMainModel.shopResponseModels;
-                    //Log.d("nabil", ": " + list.size());
+                    //Log.d(TAG, "getTaskOperationID " + responseEnvelope.surveyResponseBody.surveyResponseModel.surveys.get(0).getTaskOperationID());
                 }
             }
 
@@ -113,36 +111,32 @@ public class MainActivity extends AppCompatActivity {
         requestBody.evaluateRequestModel = requestModel;
         requestEnvelop.evaluateRequestBody = requestBody;
 
-        Call<ResponseBody> call = RetrofitGenerator.getApiInterface().evaluateShop(requestEnvelop);
-        call.enqueue(new Callback<ResponseBody>() {
+        Call<EvaluateResponseEnvelope> call = RetrofitGenerator.getApiInterface().evaluateShop(requestEnvelop);
+        call.enqueue(new Callback<EvaluateResponseEnvelope>() {
             @Override
-            public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-
-                try {
-                    Log.d(TAG, "onResponse: call " + call + " code " + response.code()
-                            + " headers " + response.headers()
-                            + " message " + response.message()
-                            + " raw " + response.raw()
-                            + " body " + response.body().string());
-                } catch (IOException e) {
-                    Log.d(TAG, "IOException: " + e.getMessage());
-                    e.printStackTrace();
-                }
+            public void onResponse(@NonNull Call<EvaluateResponseEnvelope> call, @NonNull Response<EvaluateResponseEnvelope> response) {
+                Log.d(TAG, "onResponse: call " + call + " code " + response.code()
+                        + " headers " + response.headers()
+                        + " message " + response.message()
+                        + " raw " + response.raw()
+                        + " body " + response.body());
                 pbMain.setVisibility(View.GONE);
-//                SurveyResponseEnvelope responseEnvelope = response.body();
-//                if (responseEnvelope != null) {
-//                    Log.d(TAG, "responseEnvelope " + responseEnvelope);
-//                    Log.d(TAG, "responseEnvelope.surveyResponseBody " + responseEnvelope.surveyResponseBody);
-//                    Log.d(TAG, "responseEnvelope.surveyResponseBody.surveyResponseModel " + responseEnvelope.surveyResponseBody.surveyResponseModel);
-//                    Log.d(TAG, "responseEnvelope.surveyResponseBody.surveyResponseModel.surveys " + responseEnvelope.surveyResponseBody.surveyResponseModel.surveys.size());
-//
-//                    //List<ShopResponseModel> list = responseEnvelope.body.shopModel.shopResponseMainMainModel.shopResponseModels;
-//                    //Log.d("nabil", ": " + list.size());
-//                }
+
+                EvaluateResponseEnvelope responseEnvelope = response.body();
+                if (responseEnvelope != null) {
+                    Log.d(TAG, "responseEnvelope " + responseEnvelope);
+                    Log.d(TAG, "responseEnvelope.evaluateResponseBody " + responseEnvelope.evaluateResponseBody);
+                    Log.d(TAG, "responseEnvelope.evaluateResponseBody.evaluateResponseModel " + responseEnvelope.evaluateResponseBody.evaluateResponseModel);
+                    Log.d(TAG, "responseEnvelope.evaluateResponseBody.evaluateResponseModel.evaluate " + responseEnvelope.evaluateResponseBody.evaluateResponseModel.evaluate);
+                    Log.d(TAG, "responseEnvelope.evaluateResponseBody.evaluateResponseModel.evaluate.penalties " + responseEnvelope.evaluateResponseBody.evaluateResponseModel.evaluate.penalties.size());
+
+                    //Log.d(TAG, "getEvaluationPercentage " + responseEnvelope.evaluateResponseBody.evaluateResponseModel.evaluate.getEvaluationPercentage());
+                    //Log.d(TAG, "getPenaltyCode " + responseEnvelope.evaluateResponseBody.evaluateResponseModel.evaluate.penalties.get(0).getPenaltyCode());
+                }
             }
 
             @Override
-            public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<EvaluateResponseEnvelope> call, @NonNull Throwable t) {
                 Log.d(TAG, "onFailure: " + t.getMessage());
                 pbMain.setVisibility(View.GONE);
             }
