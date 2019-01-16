@@ -7,10 +7,18 @@
     tools:context=".MainActivity">
 
     <Button
-        android:id="@+id/btn_retry"
+        android:id="@+id/btn_survey_call"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="retry" />
+        android:text="Survey Call"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btn_evaluation_call"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Evaluation Call"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <ProgressBar
         android:id="@+id/pb_main"
